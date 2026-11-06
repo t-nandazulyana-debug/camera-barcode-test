@@ -4,46 +4,71 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Camera Barcode Test Wrapper</title>
-
+  <title>Direct Camera Test</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
     body {
-      margin: 0;
       font-family: Arial, sans-serif;
-      background: #f3f4f6;
-    }
-
-    header {
-      padding: 14px;
-      background: #1769aa;
-      color: white;
+      padding: 20px;
       text-align: center;
     }
-
-    iframe {
-      display: block;
+    video {
       width: 100%;
-      height: calc(100vh - 55px);
-      border: 0;
+      max-width: 500px;
+      background: #222;
+      border-radius: 10px;
+    }
+    button {
+      padding: 14px 25px;
+      margin: 8px;
+      font-size: 16px;
     }
   </style>
 </head>
-
 <body>
 
-  <header>
-    Camera Barcode Test
-  </header>
+  <h2>Direct Camera Test</h2>
+  <p id="status">Kamera belum dibuka</p>
 
-  <iframe
-    src="https://script.google.com/a/macros/astronauts.id/s/AKfycbyLpRhw-7cjnN5eBX1ikgteEfsDIpTnsW4qnl5Si7v9XgpMntxGE0cAxntqlYFJLTtUbQ/exec"
-    allow="camera; autoplay"
-    allowfullscreen>
-  </iframe>
+  <video id="video" autoplay playsinline muted></video>
+
+  <br>
+  <button onclick="startCamera()">Buka Kamera</button>
+  <button onclick="stopCamera()">Tutup Kamera</button>
+
+  <script>
+    let stream = null;
+
+    async function startCamera() {
+      const status = document.getElementById('status');
+
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: 'environment' } },
+          audio: false
+        });
+
+        const video = document.getElementById('video');
+        video.srcObject = stream;
+        await video.play();
+
+        status.innerText = 'KAMERA BERHASIL DIBUKA';
+
+      } catch (error) {
+        status.innerText =
+          'Error: ' + error.name + ' — ' + error.message;
+      }
+    }
+
+    function stopCamera() {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+      }
+
+      document.getElementById('video').srcObject = null;
+      document.getElementById('status').innerText = 'Kamera ditutup';
+    }
+  </script>
 
 </body>
 </html>
